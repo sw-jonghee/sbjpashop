@@ -47,14 +47,12 @@ public class OrderController {
     public String orderList(@ModelAttribute("orderSearch") OrderSearch orderSearch, Model model) {
         List<Order>  orders = orderService.findAll(orderSearch);
         model.addAttribute("orders", orders);
-
-        String name = "";
-
-        for(Order order : orders) {
-            name = order.getMember().getName();
-        }
-
-        log.info("###orders member name : {}", name);
         return "order/orderList";
+    }
+
+    @PostMapping("/orders/{orderId}/cancel")
+    public String orderCancel(@PathVariable("orderId") Long orderId) {
+        orderService.cancelOrder(orderId);
+        return "redirect:/orders";
     }
 }
