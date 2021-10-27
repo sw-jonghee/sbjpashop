@@ -38,6 +38,7 @@ public class OrderRepository {
             }
             jpql += " o.status = :status";
         }
+
         //회원 이름 검색
         if (StringUtils.hasText(orderSearch.getMemberName())) {
             if (isFirstCondition) {
@@ -48,6 +49,7 @@ public class OrderRepository {
             }
             jpql += " m.name like :name";
         }
+
         TypedQuery<Order> query = em.createQuery(jpql, Order.class)
                 .setMaxResults(1000); //최대 1000건
         if (orderSearch.getOrderStatus() != null) {
@@ -57,5 +59,22 @@ public class OrderRepository {
             query = query.setParameter("name", orderSearch.getMemberName());
         }
         return query.getResultList();
+    }
+
+    public List<Order> findAllWithMemberDelivery() {
+        // order 을 가져올때 member 까지 한번에 가져 오고 싶다!! Fetch join!!!
+        return em.createQuery(
+                "select o from Order o" +
+                        " join fetch o.member m" +
+                        " join fetch o.delivery d", Order.class
+        ).getResultList();
+    }
+
+    public List<OrderSimpleQueryDto> findOrderDtos() {
+        return em.createQuery(
+                "select new jpabook.sbjpashop.repository.OrderSimpleQueryDto(o.id, m.name, o.orderDate, o.status, d.address) "+
+                        " from Order o" +
+                        " join o.member m" +
+                        " join o.delivery d", OrderSimpleQueryDto.class).getResultList();
     }
 }
